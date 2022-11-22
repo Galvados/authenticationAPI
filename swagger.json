@@ -1,0 +1,340 @@
+{
+    "openapi": "3.0.0",
+    "servers": [
+        {
+            "url": "http://localhost:8080"
+        }
+    ],
+    "info": {
+        "description": "An authentication service that allows users to register and log in",
+        "version": "1.0.0",
+        "title": "Authorization",
+        "termsOfService": "",
+        "contact": {
+            "email": "maciej.matuszewski7@wp.pl"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        }
+    },
+    "tags": [
+        {
+            "name": "auth",
+            "description": "Authorization related operations"
+        }
+    ],
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "summary": "Login user",
+                "description": "Authenticate user and return AccessToken and Refresh token as JWT. Invalidates previous refresh tokens for a given application.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": { 
+                                "properties": {
+                                    "applicationType": {
+                                        "required": true,
+                                        "type": "string",
+                                        "description": "The type of app you are trying to sign in to",
+                                        "minLength": "1",
+                                        "maxLength": "25",
+                                        "example": "mobileApp"
+                                    },
+                                    "email":{
+                                        "required": true,
+                                        "type": "string",
+                                        "description": "Email adress",
+                                        "example": "test@test.com"
+                                    },
+                                    "password":{
+                                        "required": true,
+                                        "type": "string",
+                                        "description": "Password",
+                                        "example": "zaq1@WSX!!",
+                                        "format": "password"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "login",
+                "responses": {
+                    "200": {
+                        "description": "Default response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Tokens"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples":{
+                                    "1": {"description":"Incorrect username or password"},
+                                    "2": {"description":"Bad Request"}
+                                }
+                            }
+                        }
+                        
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples":{
+                                    "1": {"description":"Internal server error"}
+                                }
+                            }
+                        }
+                        
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "summary": "Register user",
+                "description": "Registers user",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": { 
+                                "properties": {
+                                    "email":{
+                                        "required": true,
+                                        "type": "string",
+                                        "description": "Email adress",
+                                        "example": "test@test.com"
+                                    },
+                                    "password":{
+                                        "required": true,
+                                        "type": "string",
+                                        "description": "Password with requirements: min: 10, max: 30, lower Case: 1, upper Case: 1, numeric: 1, symbol: 1",
+                                        "example": "zaq1@WSX!!",
+                                        "format": "password"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "register",
+                "responses": {
+                    "200": {
+                        "description": "User registered"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples":{
+                                    "1": {"description":"User already exists"},
+                                    "2": {"description":"Bad Request"},
+                                    "3": {"description": "ValidationError: reason"}
+                                }
+                            }
+                        }
+                        
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples":{
+                                    "1": {"description":"Internal server error"},
+                                    "2": {"description": "ValidationError: reason"}
+                                }
+                            }
+                        }
+                        
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/renew": {
+            "post": {
+                "summary": "Renew access token",
+                "description": "Renew access  token and refresh token after access token expiry",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": { 
+                                "properties": {
+                                    "refreshToken":{
+                                        "required": true,
+                                        "type": "string",
+                                        "description": "JWT refresh token",
+                                        "example": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTY2ODM0MDMwMiwiZXhwIjoxNjY4MzQwOTYyLCJzdWIiOiIxMCJ9.yZ1oaSLWsmhohxHFdB0GF8ShcjUixFPsBWnLpzPkN_d_YXQ_9I0mB7g_AEqfs-B2qTXC082IDUadm2HEXxfOGyJ6XbkpSPdXxvqLhZJW5F4aYRs2_gg2y_JvlAd3mqR3ZhZYh1-0-6H7iLTLJy4XoEr_2UZnXp1E4JpYVsTebpw"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "renew",
+                "responses": {
+                    "200": {
+                        "description": "Default response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Tokens"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples":{
+                                    "1": {"description":"jwt expired"},
+                                    "2": {"description":"token not found"},
+                                    "3": {"description":"user does not exist"},
+                                    "4": {"description":"not valid refresh token"}
+                                }
+                            }
+                        }
+                        
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples":{
+                                    "1": {"description":"Internal server error"},
+                                    "2": {"description": "ValidationError: reason"}
+                                }
+                            }
+                        }
+                        
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "summary": "Logout",
+                "description": "Invalidates passed refresh token",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": { 
+                                "properties": {
+                                    "refreshToken":{
+                                        "required": true,
+                                        "type": "string",
+                                        "description": "JWT refresh token",
+                                        "example": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTY2ODM0MDMwMiwiZXhwIjoxNjY4MzQwOTYyLCJzdWIiOiIxMCJ9.yZ1oaSLWsmhohxHFdB0GF8ShcjUixFPsBWnLpzPkN_d_YXQ_9I0mB7g_AEqfs-B2qTXC082IDUadm2HEXxfOGyJ6XbkpSPdXxvqLhZJW5F4aYRs2_gg2y_JvlAd3mqR3ZhZYh1-0-6H7iLTLJy4XoEr_2UZnXp1E4JpYVsTebpw"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "operationId": "renew",
+                "responses": {
+                    "200": {
+                        "description": "Default response",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Tokens"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples":{
+                                    "1": {"description":"token not found"},
+                                    "2": {"description":"user does not exist"},
+                                    "3": {"description":"not valid refresh token"}
+                                }
+                            }
+                        }
+                        
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "schema":{
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples":{
+                                    "1": {"description":"Internal server error"},
+                                    "2": {"description": "ValidationError: reason"}
+                                }
+                            }
+                        }
+                        
+                    }
+                },
+                "tags": [
+                    "auth"
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "ErrorMessage": {
+                "type": "object",
+                "properties": {
+                    "description": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Tokens": {
+                "type": "object",
+                "properties": {
+                    "accessToken": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoiYWNjZXNzIiwiaWF0IjoxNjY4MzQwMzAyLCJleHAiOjE2NjgzNDA5MDIsInN1YiI6IjEwIn0.Szg0-RSCgZnokKYj_eSKo77dXUPjoDSuzNlQ1Ygb4H9qve0DQlweVQgmh60QAnimqwk8FhuMV_oI1BLyUZdoUi6l4OonjtZzTwHubTmHMPqsnCSZCHO6rqfETYe7oMWWTvWjQ_xBUTnyK2UrzrT4C0ShbORjVc8I4bKj3y-ZMTw"
+                    },
+                    "refreshToken": {
+                        "type": "string",
+                        "example": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0eXBlIjoicmVmcmVzaCIsImlhdCI6MTY2ODM0MDMwMiwiZXhwIjoxNjY4MzQwOTYyLCJzdWIiOiIxMCJ9.yZ1oaSLWsmhohxHFdB0GF8ShcjUixFPsBWnLpzPkN_d_YXQ_9I0mB7g_AEqfs-B2qTXC082IDUadm2HEXxfOGyJ6XbkpSPdXxvqLhZJW5F4aYRs2_gg2y_JvlAd3mqR3ZhZYh1-0-6H7iLTLJy4XoEr_2UZnXp1E4JpYVsTebpw"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {},
+        "links": {},
+        "callbacks": {}
+    },
+    "security": []
+}

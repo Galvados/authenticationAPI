@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  db: 
+    image: mongo:4.0-xenial
+    ports:
+      - 27017:27017
+  api:
+    build: ./
+    ports:
+      - 8080:8080
+    environment:
+      - mongoConnectionURL=mongodb://db/authentication
+      - mongoLoggerConnectionURL=mongodb://db/authenticationLog
+      - port=8080
+    depends_on:
+      - db
